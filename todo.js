@@ -2,17 +2,36 @@ const toDoForm = document.querySelector('.js-toDoForm');
 const toDoInput = toDoForm.querySelector('input');
 const toDoList = document.querySelector('.js-toDoList');
 
+//localStorage key
 const TODOS_LS = 'toDos';
 
+//localStorage value
+const toDos = [];
+
+//localStorage save func
+function saveToDos() {
+  localStorage.setItem(TODOS_LS, JSON.stringify(toDos));
+}
+
+//toDoList rendering
 function paintToDo(text) {
   const li = document.createElement('li');
   const delBtn = document.createElement('button');
-  delBtn.innerHTML = 'X';
   const span = document.createElement('span');
+  const newId = toDos.length + 1;
+
+  delBtn.innerHTML = 'X';
   span.innerText = text;
   li.appendChild(delBtn);
   li.appendChild(span);
+  li.id = newId;
   toDoList.appendChild(li);
+  const toDoObj = {
+    text: text,
+    id: newId
+  };
+  toDos.push(toDoObj);
+  saveToDos();
 }
 
 function handleSubmit(event) {
@@ -23,7 +42,15 @@ function handleSubmit(event) {
 }
 
 function loadToDos() {
-  const toDos = localStorage.getItem(TODOS_LS);
+  const loadedToDos = localStorage.getItem(TODOS_LS);
+  if (loadedToDos !== null) {
+    //localStorage는 data를 string으로만 저장한다.
+    //그렇기 때문에 저장은 JOSN.stringify()사용하고 load시 JSON.parse()를 사용해야한다.
+    const parseToDos = JSON.parse(loadedToDos);
+    parseToDos.forEach(function(toDo) {
+      paintToDo(toDo.text);
+    });
+  }
 }
 
 function init() {
